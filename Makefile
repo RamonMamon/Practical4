@@ -3,12 +3,15 @@ FLAGS = -Wall -Wextra -O0
 
 all: circuits
 clean:
-	rm -f circuits
+	rm -f *.o circuits
 
-circuits: circuits.c
-	${CC} ${FLAGS} circuits.c -o circuits
+circuits: circuits.o parsing.o definitions.o
+	${CC} ${FLAGS} circuits.o parsing.o definitions.o -o circuits
 
-parsing.o : parsing.c definitions.h parsing.h
+circuits.o: circuits.c parsing.h
+	${CC} ${FLAGS} circuits.c -c -o circuits.o 
+
+parsing.o : parsing.c parsing.h
 	${CC} ${FLAGS} parsing.c -c -o parsing.o 
 
 definitions.o : definitions.c definitions.h
