@@ -1,0 +1,3 @@
+myin1 IN
+foo AND myin1 out
+out OR foo one

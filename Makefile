@@ -6,7 +6,7 @@ clean:
 	rm -f *.o circuits
 
 circuits: circuits.o parsing.o definitions.o
-	${CC} ${FLAGS} circuits.o parsing.o definitions.o -o circuits
+	${CC} ${FLAGS} circuits.o parsing.o definitions.o -o circuits -lm
 
 circuits.o: circuits.c parsing.h
 	${CC} ${FLAGS} circuits.c -c -o circuits.o 
