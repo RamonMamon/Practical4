@@ -15,7 +15,22 @@ Gate* parse_Gate(char* line){
         token = strtok(NULL, delim);
         i++;
     }
+    if(strcmp(string[1],operators[IN]) == 0 || strcmp(string[0],"out") == 0)
+        printf("%s ", string[0]);
     return new_Gate(string[0], string[1], string[2], string[3]);
+}
+
+void changeInputVals(Gates* gates, int** digits, int index){
+    Gates* node = gates;
+    if(index == 0) printf("0 ");
+    while(node != NULL){
+        Gate* current = node->gate;
+        if(strcmp(current->operand, operators[IN]) == 0 && index >=0){
+            current->previousState = digits[index];
+            index--;
+        }
+        node = node->next;
+    }
 }
 
 void runCircuit(Gates* gates){
@@ -23,11 +38,49 @@ void runCircuit(Gates* gates){
     //Iterates through the list and gets the values of the input wires
     while(node != NULL){
         Gate* current = node->gate;
-        //Check if the gate is an IN wire?
         if(current->input1 != NULL){
             current->previousState = current->currentState;
-            current->currentState = conductOperation(current, getValue(current->input1, gates), getValue(current->input2, gates));
-            printf("%s %d \n",current->name, current->currentState);
+            int val1 = getValue(current->input1, gates);
+            int val2 = getValue(current->input2, gates);
+            current->currentState = conductOperation(current,val1, val2);
+        }         
+        node = node->next; 
+    }
+    // printf("End of Circuit\n");
+}
+
+bool isStable(Gates* gates, int index){
+    bool previousState;
+    bool currentState;
+    for(int i = 0; i < index ; i++){
+        runCircuit(gates);
+        Gates* node = gates;
+        while(node != NULL){
+            Gate* current = node->gate;
+            if(strcmp(current->name, "out") == 0){
+                current->previousState = current->currentState;
+            }
+            node = node->next; 
+        }
+        if(i == index-2) previousState = getValue("out", gates);
+    }
+    currentState = getValue("out", gates);
+    
+    // printf("previousState %d currentState %d\n", previousState, currentState);
+    if(previousState != currentState)
+        return false;
+    else
+        return true;
+    
+}
+
+void clearGates(Gates* gates){
+    Gates* node = gates;
+    while(node!= NULL){
+        Gate* current = node->gate;
+        if(strcmp(current->operand, operators[IN]) != 0){
+            current->previousState = 0;
+            current->currentState = 0;
         }
         node = node->next;
     }
@@ -44,64 +97,47 @@ int getValue(char* wireName, Gates* gates){
         if(strcmp(wireName, current->name) == 0){
             return current->previousState;
         }
+        
         node = node->next;
     }
     //The wire does not exist.
     return 2;
 }
 
+void printLine(Gates* gates, bool isStable){
+    Gates* node = gates;
+    while(node != NULL){
+        Gate* current = node->gate;
+        if(strcmp(current->operand, operators[IN]) == 0)
+            printf("%d ", current->previousState);
+        if(strcmp(current->operand, "out") == 0)
+            if(isStable)
+                printf("? ");
+            else printf("%d ", current->previousState);
+        
+        node = node->next;
+    }
+    printf("\n");
+}
+
 bool conductOperation(Gate* gate, bool* input1, bool* input2){
-    if(strcmp(gate->operand, operators[NAND]) == 0){
-        printf("%d %d\n", input1, input2);
+    if(strcmp(gate->operand, operators[NAND]) ==   0){
         return nandGate(input1, input2);
     }
     if(strcmp(gate->operand, operators[NOT]) == 0){
-        printf("%d\n", input1);
         return notGate(input1);
     }
     if(strcmp(gate->operand, operators[OR]) == 0){
-        printf("%d %d\n", input1, input2);
         return orGate(input1, input2);
     }
     if(strcmp(gate->operand, operators[XOR]) == 0){
-        printf("%d %d\n", input1, input2);
         return xorGate(input1, input2);
     }
     if(strcmp(gate->operand, operators[NOR]) == 0){
-        printf("%d %d\n", input1, input2);
         return norGate(input1, input2);
     }
     if(strcmp(gate->operand, operators[AND]) == 0){
-        printf("%d %d\n", input1, input2);
         return andGate(input1, input2);
     }
 }
 
-bool notGate(bool* val){return !val;}
-
-bool orGate(bool* val, bool* val2){return val||val2;}
-
-bool andGate(bool* val, bool* val2){return val && val2;}
-
-bool nandGate(bool* val, bool* val2){return notGate(andGate(val,val2));}
-
-bool norGate(bool* val, bool* val2){return notGate(orGate(val,val2));}
-
-bool xorGate(bool* val, bool* val2){return val != val2;}
-
-/*
-Checks if the string is an operator.
-*/
-bool isOperator(char* string){
-    for(int i = 0; i < numberOfOps; i++){
-        if(strcmp(string, operators[i]) == 0) return true;
-    }
-    return false;
-}
-
-bool isPredefined(char* string){
-    for(int i = 0; i < 2; i++){
-        if(strcmp(string, predefWires[i]) == 0) return true;
-    }
-    return false;
-}

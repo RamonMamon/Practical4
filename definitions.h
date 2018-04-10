@@ -31,5 +31,21 @@ extern const char* predefWires[];
 //Gates Struct to form list of gates.
 Gate* new_Gate(char* output, char* operand, char* inputWire1, char* inputWire2);
 
-//Sets Wire Value.
-void setValue(Gate* gate, int val);
+/*
+This function checks if a specified string is an operator.
+*/
+bool isOperator(char* string);
+
+bool isPredefined(char* string);
+
+bool notGate(bool* val);
+
+bool orGate(bool* val, bool* val2);
+
+bool andGate(bool* val, bool* val2);
+
+bool nandGate(bool* val, bool* val2);
+
+bool norGate(bool* val, bool* val2);
+
+bool xorGate(bool* val, bool* val2);
