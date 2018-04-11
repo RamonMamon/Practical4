@@ -1,9 +1,8 @@
 #include "parsing.h"
 #include <math.h>
 
-
 /**
- * Function that converts an int to its binary representation using recursion.
+ * Function that converts an int to its binary reprentation using recursion.
  * Taken from Sanfoundry.
  */
 int binary_conversion(int num){
@@ -15,54 +14,60 @@ int binary_conversion(int num){
     }
 }
 
-//Create a funtion that prints the out value
+/**
+ * Free list of Gates and it's fields.
+ */
+void freeGates(Gate* gates) {
+	if (gates) {
+		freeGates(gates->next);
+		free(gates);
+	}
+}
 
-int main(int argc, char* argv[]){
-    //Don't forget to implement arguments.
-    // if(argc != 3)
-
-    FILE* file;
+int main(){
+    Gate* head = NULL;
+    Gate* last = NULL;
+    bool outExists = false;
+    size_t len = 0;
     int size = 30;
     char* line = malloc(sizeof(char)*size);
-    file = fopen("./Input Files/srnandlatch.txt", "r");
-
-    //Used to store a list of all the gates.
-    Gates* head;
-    Gates* last;
-
     int numInputs = 0;
-    while(fgets(line, size, (FILE*)file)){
-        Gates* node = malloc(sizeof(Gates*));;
-        node->gate = parse_Gate(line);
-        if(strcmp(node->gate->operand, operators[IN]))numInputs++;
+    
+    while(getline(&line, &len, stdin) != -1){
+        Gate* node = malloc(sizeof(Gate*));;
+        node = parse_Gate(line);
+        if(strcmp(node->name,"out") == 0)outExists = true;
+        if(strcmp(node->operand, operators[IN]) == 0)numInputs++;
         node->next = NULL;
         if(head == NULL)head = node;
         else last->next = node;
         last = node;
+        line = realloc(line, len);
+        
     }
     printf("\n");
+    
     //Number of possible input states
     numInputs = pow(2,numInputs);
     for(int i = 0; i < numInputs; i++){
-        int binary =binary_conversion(i);
-        int** digits = malloc(sizeof(int)*binary);
+        int binary = binary_conversion(i);
+        int** digits= malloc(sizeof(int)*binary);
         int index = 0;
         while(binary){
             digits[index] = binary % 10;
-            // printf("%d\n", digits[index]);
             binary /= 10;
             index++;
         }
-        if(index >1)index--;
-        // printf("Repetition: %d\n", i);
         
+        if(index >1)index--;
         clearGates(head);
         changeInputVals(head, digits, index); 
-        
-        // printf("\n");s
-        printLine(head,isStable(head,numInputs));
+        printLine(head,isStable(head, outExists), outExists);
+        free(digits);
     }
-
+    
+    freeGates(head);
+    free(line);
     return 0;
 }
 

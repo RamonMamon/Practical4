@@ -8,21 +8,35 @@ Gate* parse_Gate(char* line);
 /*
 This function will change the input values of the circuit.
 */
-void changeInputVals(Gates* gates, int** digits, int index);
+void changeInputVals(Gate* gates, int** digits, int index);
 
 /*
-This function will be used to wire the gates together to create working circuit.
+This function is used to "Run" the circuit by 
 */
-void runCircuit(Gates* gates);
+void runCircuit(Gate* gates);
 
-void update(Gates*gates);
+/*
+This function checks if a gate is stable.
+*/
+bool isStable(Gate* gates, bool outExists);
 
-bool isStable(Gates* gates,int index);
+/*
+This function resets the values of each wire.
+*/
+void clearGates(Gate* gates);
 
-void clearGates(Gates* gates);
+/*
+This function returns the previous value of a specified wire.
+*/
+int getValue(char* wireName, Gate* gates);
 
-int getValue(char* wireName, Gates* gates);
+/*
+This function is used to print a line of current values of each wire.
+*/
+void printLine(Gate* gates, bool isStable, bool outExists);
 
-void printLine(Gates* gates, bool isStable);
-
+/*
+This function carries out the operation specified of the current gate
+and returns the value of the conducted operation.
+*/
 bool conductOperation(Gate* currentGate, bool* input1, bool* input2);

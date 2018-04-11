@@ -6,7 +6,6 @@
 #define DEFINITIONS_H
 
 typedef struct gate Gate;
-typedef struct gates Gates;
 
 struct gate{
     char* operand;
@@ -15,20 +14,18 @@ struct gate{
     char* name;
     bool* currentState;
     bool* previousState;
+    Gate* next;
 };
 
-struct gates{
-    Gate* gate;
-    Gates* next;
-    Gates* previous;
-};
 #endif
 extern const int numberOfOps;
 enum enumOps{IN,NOT, AND, NAND, OR, NOR, XOR,EQ};
 extern const char* operators[];
 extern const char* predefWires[];
 
-//Gates Struct to form list of gates.
+/*
+Constructor for a new gate.
+*/
 Gate* new_Gate(char* output, char* operand, char* inputWire1, char* inputWire2);
 
 /*
@@ -36,8 +33,14 @@ This function checks if a specified string is an operator.
 */
 bool isOperator(char* string);
 
+/*
+This function takes a name of a gate and checks if it is predefined.
+*/
 bool isPredefined(char* string);
 
+/*
+Declaration for the gates.
+*/
 bool notGate(bool* val);
 
 bool orGate(bool* val, bool* val2);
